@@ -5,7 +5,7 @@ import asyncio
 
 from chiebukuro import QuestionIDCrawler, QuestionDetailCrawler
 
-logging.basicConfig(filename="log.txt", filemode="w", encoding="utf-8", level=logging.INFO)
+logging.basicConfig(filename="log.txt", filemode="w", level=logging.INFO)
 LOGGER = logging.getLogger()
 
 

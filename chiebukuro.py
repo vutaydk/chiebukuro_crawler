@@ -142,7 +142,7 @@ class QuestionDetailCrawler:
             questions = await self._start_crawl(category_id, questions_id)
 
             out_filename = filename.replace("_part", "")
-            await save_json(questions, out_filename)
+            await save_json(questions, out_filename, root_dir=None, is_jsonl=True)
             shutil.move(input_filepath, input_filepath + ".done")
 
             LOGGER.info(f"Saved {len(questions)} questions into file: {out_filename}")

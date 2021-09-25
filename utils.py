@@ -119,7 +119,7 @@ class StorageConfig:
 FILE_STORAGE_CONFIG = StorageConfig()
 
 
-async def save_json(data, filename, root_dir=None):
+async def save_json(data, filename, root_dir=None, is_jsonl=False):
     if not data:
         LOGGER.warning(f"No data to save into file {filename}")
         return
@@ -132,7 +132,11 @@ async def save_json(data, filename, root_dir=None):
         os.makedirs(dir_name, exist_ok=True)
 
     async with aiofiles.open(out_file_path, mode="w", encoding="utf-8") as file:
-        await file.write(json.dumps(data))
+        if is_jsonl:
+            for d in data:
+                await file.write(json.dumps(d))
+        else:
+            await file.write(json.dumps(data))
         LOGGER.info(f"output saved: {filename}")
 
 

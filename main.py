@@ -17,11 +17,14 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     if not args.step1 and not args.step2:#run all
+        LOGGER.info("RUN FULL")
         asyncio.run(QuestionIDCrawler().execute())
         QuestionDetailCrawler().execute()
 
     if args.step1:
+        LOGGER.info("RUN STEP 1")
         asyncio.run(QuestionIDCrawler().execute())
     if args.step2:
+        LOGGER.info("RUN STEP 2")
         QuestionDetailCrawler().execute()
 

@@ -165,7 +165,8 @@ class QuestionDetailCrawler:
 
         if tasks: #when tasks in last chunk is less than max_conccurent_number
             tasks_result = await asyncio.gather(*tasks)
-            questions.extend(tasks_result)    
+            if tasks_result:
+                questions.extend(tasks_result)    
 
         return questions
 

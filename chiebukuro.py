@@ -158,7 +158,8 @@ class QuestionDetailCrawler:
             tasks.append(task)
             if len(tasks) >= max_concurrent_task:
                 tasks_result = await asyncio.gather(*tasks)
-                questions.extend(tasks_result)
+                if tasks_result:
+                    questions.extend(tasks_result)
                 tasks = []
 
         if tasks: #when tasks in last chunk is less than max_conccurent_number
@@ -170,7 +171,7 @@ class QuestionDetailCrawler:
     async def _crawl(sefl,category_id, question_id):
         def parse_answers(soup):
             answers = []
-            answers_wrapper = soup.find_all(class_="ClapLv2AnswerItem_Chie-AnswerItem__Item__1lGUu")
+            answers_wrapper = soup.find_all(class_="ClapLv3AnswerList_Chie-AnswerList__Item__2PxD4")
             for wrapper in answers_wrapper:
                 answer = {
                     "answer": "",
@@ -192,7 +193,7 @@ class QuestionDetailCrawler:
         await save_html(first_page_html, os.path.join(category_id, f"{question_id}_1.html"))
 
         qa = {
-            "category": "",
+            "category": category_id,
             "question_id": question_id,
             "question": "",
             "thanks_comment": "",
@@ -228,3 +229,8 @@ class QuestionDetailCrawler:
             except:
                 LOGGER.exception(f"Extract answers of post fail: {nth_page_url}")
         return qa
+    
+
+import asyncio
+if __name__ == "__main__":
+    asyncio.run(QuestionDetailCrawler()._crawl("2078297965", "q13242501528"))

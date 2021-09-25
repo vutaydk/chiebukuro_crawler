@@ -4,6 +4,7 @@ import asyncio
 import multiprocessing
 import json
 import shutil
+import re
 
 from bs4 import BeautifulSoup
 
@@ -171,17 +172,17 @@ class QuestionDetailCrawler:
     async def _crawl(sefl,category_id, question_id):
         def parse_answers(soup):
             answers = []
-            answers_wrapper = soup.find_all(class_="ClapLv3AnswerList_Chie-AnswerList__Item__2PxD4")
+            answers_wrapper = soup.find_all(class_=re.compile("\S*AnswerList_Chie-AnswerList__Item_\S*"))
             for wrapper in answers_wrapper:
                 answer = {
                     "answer": "",
                     "replies": []
                 }
-                answer["answer"] = wrapper.find(class_="ClapLv2AnswerItem_Chie-AnswerItem__ItemText__3yFYH").get_text()
+                answer["answer"] = wrapper.find(class_=re.compile("\S*AnswerItem_Chie-AnswerItem__ItemText_\S*")).get_text()
 
-                reply_items = wrapper.find_all(class_="ClapLv2ReplyItem_Chie-ReplyItem__Item__1FMx3")
+                reply_items = wrapper.find_all(class_=re.compile("\S*ReplyItem_Chie-ReplyItem__Item_\S*"))
                 for reply_item  in reply_items:
-                    reply_text = reply_item.find(class_="ClapLv2ReplyItem_Chie-ReplyItem__ItemText__33ftJ").get_text()
+                    reply_text = reply_item.find(class_=re.compile("\S*ReplyItem_Chie-ReplyItem__ItemText_\S*")).get_text()
                     answer["replies"].append(reply_text)
                 
                 answers.append(answer)
@@ -201,14 +202,14 @@ class QuestionDetailCrawler:
         }
 
         first_page = BeautifulSoup(first_page_html, "html5lib")
-        question_wrapper = first_page.find(class_="ClapLv2QuestionItem_Chie-QuestionItem__Item__HQiuJ")
-        qa["question"] = question_wrapper.find(class_="ClapLv2QuestionItem_Chie-QuestionItem__Text__1AI-5").get_text()
+        question_wrapper = first_page.find(class_=re.compile("\S*QuestionItem_Chie-QuestionItem__Item_\S*"))
+        qa["question"] = question_wrapper.find(class_=re.compile("\S*QuestionItem_Chie-QuestionItem__Text_\S*")).get_text()
         qa["answers"].extend(parse_answers(first_page))
-        thanks_wrapper = first_page.find(class_="ClapLv2Thanks_Chie-Thanks__3cXza")
+        thanks_wrapper = first_page.find(class_=re.compile("\S*Thanks_Chie-Thanks_\S*"))
         if thanks_wrapper:
-            qa["thanks_comment"] = thanks_wrapper.find(class_="ClapLv2Thanks_Chie-Thanks__Text__1uplY").get_text()
+            qa["thanks_comment"] = thanks_wrapper.find(class_=re.compile("\S*Thanks_Chie-Thanks__Text_\S*")).get_text()
         
-        if not first_page.find(class_="ClapLv1Pagination_Chie-Pagination__2n_DF"): #have one page only
+        if not first_page.find(class_=re.compile("\S*Pagination_Chie-Pagination_\S*")): #have one page only
             return qa
 
         for page in range(2, 100):
@@ -221,7 +222,7 @@ class QuestionDetailCrawler:
                 nth_page = BeautifulSoup(first_page_html, "html5lib")
 
                 #exceed maximum page number
-                if nth_page.find(class_="ClapLv1Pagination_Chie-Pagination__Anchor--Current__2xIeZ").string != str(page):
+                if nth_page.find(class_=re.compile("\S*Pagination_Chie-Pagination__Anchor--Current_\S*")).string != str(page):
                     break
 
                 answers = parse_answers(nth_page)

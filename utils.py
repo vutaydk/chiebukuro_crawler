@@ -137,7 +137,7 @@ async def save_json(data, filename, root_dir=None, is_jsonl=False):
                 if not d:
                     continue
                 await file.write(json.dumps(d))
-                await file.write(os.sep)
+                await file.write(os.linesep)
         else:
             await file.write(json.dumps(data))
         LOGGER.info(f"output saved: {filename}")

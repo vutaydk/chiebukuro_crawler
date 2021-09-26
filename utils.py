@@ -134,7 +134,10 @@ async def save_json(data, filename, root_dir=None, is_jsonl=False):
     async with aiofiles.open(out_file_path, mode="w", encoding="utf-8") as file:
         if is_jsonl:
             for d in data:
+                if not d:
+                    continue
                 await file.write(json.dumps(d))
+                await file.write(os.sep)
         else:
             await file.write(json.dumps(data))
         LOGGER.info(f"output saved: {filename}")

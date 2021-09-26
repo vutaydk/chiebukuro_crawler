@@ -152,21 +152,21 @@ class QuestionDetailCrawler:
         if not questions_id:
             return questions
 
-        max_concurrent_task = 5
+        max_concurrent_task = 10
         tasks = []
         for q_id in questions_id:
             task = asyncio.create_task(self._crawl(category_id, q_id))
             tasks.append(task)
             if len(tasks) >= max_concurrent_task:
                 tasks_result = await asyncio.gather(*tasks)
-                if tasks_result:
-                    questions.extend(tasks_result)
+                tasks_result = [q for q in tasks_result if q]
+                questions.extend(tasks_result)
                 tasks = []
 
         if tasks: #when tasks in last chunk is less than max_conccurent_number
             tasks_result = await asyncio.gather(*tasks)
-            if tasks_result:
-                questions.extend(tasks_result)    
+            tasks_result = [q for q in tasks_result if q]
+            questions.extend(tasks_result)    
 
         return questions
 
@@ -191,7 +191,7 @@ class QuestionDetailCrawler:
 
         first_page_html = await Requester.get(POST_DETAIL_PAGE_URL.format(question_id=question_id, page=1))
         if not first_page_html:
-            return
+            return None
         await save_html(first_page_html, os.path.join(category_id, f"{question_id}_1.html"))
 
         qa = {
